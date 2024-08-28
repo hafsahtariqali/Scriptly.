@@ -44,7 +44,7 @@ const MobileMenu = () => {
                 <li key={index}>
                   <a
                     href={item.url}
-                    className="block text-[#f7a8a8] hover:text-gray-600 p-4"
+                    className="block text-[#f7a8a8] hover:text-gray-400 p-4"
                   >
                     {item.title}
                   </a>
