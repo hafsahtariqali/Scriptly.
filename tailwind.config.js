@@ -18,6 +18,7 @@ module.exports = {
       backgroundImage: {
         'custom-gradient': 'linear-gradient(to right, rgba(85, 139, 255, 0.7), rgba(0, 212, 255, 0.7), rgba(255, 183, 77, 0.7), rgba(255, 97, 97, 0.7), rgba(85, 139, 255, 0.7))',
         'hero-gradient': 'linear-gradient(to bottom, black, #630404)',
+        'manual-gradient': 'linear-gradient(to bottom, #630404, black)',
        'radial-gradient': 'radial-gradient(ellipse at center, #630404, black)',
       },
     }
