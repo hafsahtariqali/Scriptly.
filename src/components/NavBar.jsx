@@ -25,16 +25,16 @@ const NavBar =  () => {
         <nav className="hidden md:block">
           <ul className="flex flex-row space-x-6 p-3 block text-[#f7a8a8]">
             <li>
-              <a href="#features" className="hover:text-gray-600">Features</a>
+              <a href="#features" className="hover:text-gray-400">Features</a>
             </li>
             <li>
-              <a href="#manual" className="hover:text-gray-600">Manual</a>
+              <a href="#manual" className="hover:text-gray-400">Manual</a>
             </li>
             <li>
-              <a href="#whyus" className="hover:text-gray-600">Why Us</a>
+              <a href="#whyus" className="hover:text-gray-400">Why Us</a>
             </li>
             <li>
-              <a href="#contact" className="hover:text-gray-600">Contact</a>
+              <a href="#contact" className="hover:text-gray-400">Contact</a>
             </li>
           </ul>
         </nav>
