@@ -37,7 +37,7 @@ export const Features = () => {
           {features.map(({ icon, title, description }) => (
             <motion.div
               key={title}
-              className="border border-[#f7a8a8] px-5 py-10 text-center rounded-xl sm:flex-1"
+              className="border border-[#f7a8a8] px-5 py-10 mr-2 ml-2 text-center rounded-xl sm:flex-1"
               whileHover={{
                 scale: 1.05,
                 boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
