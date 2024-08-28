@@ -12,7 +12,7 @@ html{
   scroll-behavior: smooth;
 }
 
-#hero, #features {
+#hero, #features, #manual {
   opacity: 0;
   transform: translateY(20px);
   animation: fadeIn 1s ease-out forwards;
