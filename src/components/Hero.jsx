@@ -7,7 +7,7 @@ const Hero = () => {
         <div className="w-full h-full bg-radial-gradient"></div>
       </div>
       <div className="relative z-10 text-center">
-        <h1 className="text-white text-5xl md:text-6xl font-bold mb-4 font-spartan ml-3 mr-3" style={{ lineHeight: '4rem' }}>
+        <h1 className="text-center text-white font-spartan font-bold text-5xl sm:text-6xl tracking-tighter">
           Tired of YouTube Burnout?<br></br>Let <span className='text-[#FF0000]'>Scriptly</span> Do the Heavy Lifting.
         </h1>
         <div className="flex justify-center">
