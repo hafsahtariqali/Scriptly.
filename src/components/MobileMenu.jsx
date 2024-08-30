@@ -4,19 +4,19 @@ import { Menu, X } from "lucide-react";
 const navItems = [
   {
     title: "Features",
-    url: "#features",
+    url: "/#features",
   },
   {
     title: "Manual",
-    url: "#manual",
+    url: "/#manual",
   },
   {
     title: "Why Us",
-    url: "#whyus",
+    url: "/#whyus",
   },
   {
     title: "Contact",
-    url: "#contact",
+    url: "/#contact",
   },
   {
     title: "Log In",

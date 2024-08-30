@@ -3,13 +3,13 @@ import React from 'react';
 const Dashboard = () => {
     return (
         <div className="min-h-screen flex flex-col bg-radial-gradient">
-            <nav className="bg-black text-white p-4 flex justify-between items-center">
+            {/* <nav className="bg-black text-white p-4 flex justify-between items-center">
                 <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
                 <div className="flex space-x-8 items-center">
                     <a href="#" className="font-sans text-black bg-white p-2 rounded-md hover:text-red-800">Settings</a>
                     <a href="#" className="font-sans text-black bg-white p-2 rounded-md hover:text-red-800">Log Out</a>
                 </div>
-            </nav>
+            </nav> */}
 
             <div className="flex flex-1 p-4 space-x-4 m-5 ">
                 <div className="w-3/4 p-4 border-2 border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center">
