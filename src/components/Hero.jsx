@@ -11,7 +11,7 @@ const Hero = () => {
           Tired of YouTube Burnout?<br></br>Let <span className='text-[#FF0000]'>Scriptly</span> Do the Heavy Lifting.
         </h1>
         <div className="flex justify-center">
-        <p className="text-gray-200 text-lg md:text-xl mb-8 font-poppins max-w-[800px] ml-3 mr-3 mt-5">
+        <p className="text-gray-200 text-lg md:text-xl mb-8 font-poppins max-w-[800px] ml-8 mr-8 mt-8">
           Say goodbye to endless scriptwriting sessions and hello to <span className='text-[#f7a8a8]'>effortless YouTube automation.</span> Let Scriptly's AI generate <span className='text-[#f7a8a8]'>custom scripts</span> for your YouTube channel. Focus on creating engaging videos <span className='text-[#f7a8a8]'>while Scriptly handles the rest.</span>
         </p>
         </div>
