@@ -52,8 +52,8 @@ const Dashboard = () => {
 
             <div className="flex flex-1 p-4 space-x-4 m-5">
                 <div className="w-3/4 p-4 border border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center relative">
-                    <Youtube size={40} />
-                    <h2 className="text-2xl font-semibold mb-4">
+                    <Youtube size={40} color="#fff" />
+                    <h2 className="text-2xl font-semibold mb-4 mt-4">
                         {selectedTopic ? `Script for ${selectedTopic}` : 'Generate a New Script'}
                     </h2>
                     
@@ -61,11 +61,11 @@ const Dashboard = () => {
                         <div className="flex space-x-4">
                             <button
                                 onClick={toggleMenu}
-                                className="w-3/4 font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                                className="w-3/4 font-spartan bg-[#FF0000] font-roboto px-2 py-2 rounded-md text-white cursor-pointer hover:bg-[#630404] font-bold"
                             >
                                 Make a Script
                             </button>
-                            <button className="w-3/4 font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold">
+                            <button className="w-3/4 font-spartan bg-[#FF0000] font-roboto px-2 py-2 rounded-md text-white cursor-pointer hover:bg-[#630404] font-bold">
                                 Change Preferences
                             </button>
                         </div>
