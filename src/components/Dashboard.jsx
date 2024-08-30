@@ -1,4 +1,5 @@
 import React from 'react';
+import { Youtube } from 'lucide-react';
 
 const Dashboard = () => {
     return (
@@ -6,26 +7,33 @@ const Dashboard = () => {
             <nav className="bg-black text-white p-4 flex justify-between items-center">
                 <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
                 <div className="flex space-x-8 items-center">
-                    <a href="#" className="font-sans text-black bg-white p-2 rounded-md hover:text-red-800">Settings</a>
-                    <a href="#" className="font-sans text-black bg-white p-2 rounded-md hover:text-red-800">Log Out</a>
+                <button
+                className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+              >
+                Settings
+              </button>
+                <button
+                className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold">
+                Log Out
+              </button>
                 </div>
             </nav>
 
             <div className="flex flex-1 p-4 space-x-4 m-5 ">
-                <div className="w-3/4 p-4 border-2 border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center">
-                    <img src="/youtube.png" className='h-14 w-13 pb-3'></img>
+                <div className="w-3/4 p-4 border border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center">
+                    <Youtube size={40}/>
                     <h2 className="text-2xl font-semibold mb-4">Generate a New Script</h2>
                     <div className="flex space-x-4">
-                        <button className="w-3/4 bg-white hover:bg-red-400 text-black p-1 rounded-lg">
-                            Make a Script!
+                        <button className="w-3/4 font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold">
+                            Make a Script
                         </button>
-                        <button className="w-3/4 bg-white hover:bg-red-400 text-black p-1 rounded-lg">
+                        <button className="w-3/4 font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold">
                             Change Preferences
                         </button>
                     </div>
                 </div>
 
-                <div className="w-1/4 p-4 border-2 border-white rounded-lg text-red-300">
+                <div className="w-1/4 p-4 border border-white rounded-lg text-red-300">
                     <h2 className="text-2xl font-semibold mb-4 text-center">Past Scripts</h2>
                     <ul>
                     </ul>
