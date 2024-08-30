@@ -19,7 +19,7 @@ const WhyUs = () => {
               }}
               transition={{ duration: 0.3 }}
             >
-          <div className="bg-white text-black p-8 rounded-lg flex-1 flex flex-col justify-between h-auto sm:h-[330px] sm:mt-[100px]">
+          <div className="bg-white text-black p-8 rounded-lg flex-1 flex flex-col justify-between h-auto w-[340px] sm:h-[330px] sm:mt-[100px]">
             <div>
               <h3 className="text-xl sm:text-2xl font-spartan text-center font-bold mb-6">
                 Other Script Generators
@@ -42,13 +42,13 @@ const WhyUs = () => {
                 boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
               }}
               transition={{ duration: 0.3 }}
-              className="bg-transparent border border-white/30 p-8 sm:p-10 text-white rounded-lg flex-[1.2] flex flex-col justify-between h-auto sm:h-[500px]"
+              className="bg-transparent border border-white/30 p-8 sm:p-10 text-white rounded-lg flex-[1.2] flex flex-col justify-between h-auto sm:h-[610px]"
             >
             <div>
               <h3 className="text-3xl sm:text-4xl md:text-5xl text-center text-[#FF0000] tracking-tighter font-spartan font-extrabold mb-6 sm:mb-9">
                 Scriptly.
               </h3>
-              <ul className="space-y-4 text-sm sm:text-base">
+              <ul className="space-y-4 sm:space-y-6 text-sm sm:text-base">
                 <li>Advanced AI-powered personalization to match channel's voice</li>
                 <li>Multilingual script generation for global usage</li>
                 <li>AI-driven trending topic suggestions</li>
