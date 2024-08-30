@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { SignedIn, SignedOut, UserButton, useUser, useClerk } from '@clerk/nextjs';
 
 const navItems = [
   {
@@ -19,13 +20,15 @@ const navItems = [
     url: "/#contact",
   },
   {
-    title: "Log In",
+    title: "Get Started",
     url: "/sign-in",
   },
 ];
 
 const MobileMenu = () => {
   const [navOpen, setNavOpen] = useState(false);
+  const { user } = useUser();
+  const { signOut } = useClerk(); 
 
   const handleLinkClick = () => {
     setNavOpen(false); // Close the menu when a nav link is clicked
@@ -33,6 +36,7 @@ const MobileMenu = () => {
 
   return (
     <div className="block md:hidden">
+      <SignedOut>
       {!navOpen ? (
         <button onClick={() => setNavOpen(true)} className="flex justify-center">
           <Menu size={29} color="#f7a8a8" />
@@ -59,6 +63,10 @@ const MobileMenu = () => {
           </div>
         </>
       )}
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
     </div>
   );
 };

@@ -16,9 +16,11 @@ const Hero = () => {
         </p>
         </div>
         <div className="flex justify-center space-x-4 mt-5">
+          <a href='/dashboard'>
           <button className="bg-[#FF0000] text-white px-6 py-3 rounded-md text-lg hover:bg-[#630404] font-spartan font-bold">
             Start Scripting Now
           </button>
+          </a>
         </div>
       </div>
     </div>

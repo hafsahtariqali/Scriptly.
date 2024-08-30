@@ -42,13 +42,13 @@ const WhyUs = () => {
                 boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
               }}
               transition={{ duration: 0.3 }}
-              className="bg-transparent border border-white/30 p-8 sm:p-10 text-white rounded-lg flex-[1.2] flex flex-col justify-between h-auto sm:h-[610px]"
+              className="bg-transparent border border-white/30 p-8 sm:p-10 text-white rounded-lg flex-[1.2] flex flex-col justify-between h-auto sm:h-[600px]"
             >
             <div>
-              <h3 className="text-3xl sm:text-4xl md:text-5xl text-center text-[#FF0000] tracking-tighter font-spartan font-extrabold mb-6 sm:mb-9">
+              <h3 className="text-3xl sm:text-4xl md:text-5xl text-center text-[#FF0000] tracking-tighter font-spartan font-extrabold mb-6 sm:mb-14">
                 Scriptly.
               </h3>
-              <ul className="space-y-4 sm:space-y-6 text-sm sm:text-base">
+              <ul className="space-y-4 sm:space-y-8 md:space-y-6 text-md sm:text-base">
                 <li>Advanced AI-powered personalization to match channel's voice</li>
                 <li>Multilingual script generation for global usage</li>
                 <li>AI-driven trending topic suggestions</li>

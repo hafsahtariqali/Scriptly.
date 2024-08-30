@@ -1,12 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Youtube, Download } from 'lucide-react';
+import { SignedIn, useUser} from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
 
 const Dashboard = () => {
     const [showMenu, setShowMenu] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
 
+    const { isLoaded, isSignedIn } = useUser();  // Check user authentication state
+    const router = useRouter();  // Next.js router for programmatic navigation
+
+    useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            router.push('/sign-in');  // Redirect to your sign-in page
+        }
+    }, [isLoaded, isSignedIn, router]);
+    
     const toggleMenu = () => {
         setShowMenu(!showMenu);
     };
@@ -32,6 +43,7 @@ const Dashboard = () => {
 
     return (
         <div className="min-h-screen flex flex-col bg-radial-gradient">
+               <SignedIn>
             {/* <nav className="bg-black text-white p-4 flex justify-between items-center">
                 <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
                 <div className="flex space-x-8 items-center">
@@ -137,6 +149,7 @@ const Dashboard = () => {
                     </ul>
                 </div>
             </div>
+         </SignedIn>
         </div>
     );
 };
