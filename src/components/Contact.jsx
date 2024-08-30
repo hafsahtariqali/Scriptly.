@@ -1,37 +1,109 @@
 'use client';
-import React from 'react';
-import { Github } from 'lucide-react';
+import { useState } from 'react';
+import emailjs from 'emailjs-com';
 
-const Contact = () => {
-  const handleEmailClick = () => {
-    window.location.href = 'mailto:optigenai@gmail.com';
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+      // Prepare the email data with user's email address
+      const templateParams = {
+        from_name: formData.name,
+        user_email: formData.email, // Include user's email in the template
+        message: formData.message,
+      };
+
+      const response = await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
+      setFeedback('Message sent successfully!');
+      setFormData({
+        name: '',
+        email: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error sending email:', error);
+      setFeedback('Failed to send the message. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <section id="contact" className="bg-manual-gradient text-white pb-12 flex items-center justify-center py-6">
-      <div className="container mx-auto px-4 text-center">
-        <h3 className="text-center font-spartan font-bold text-5xl sm:text-6xl tracking-tighter py-[90px]">Are you tired of spending hours crafting scripts? Let <span className="text-[#FF0000]">Scriptly</span> do the work for you.</h3>
-        <div className="flex flex-col items-center space-y-4">
+    <div id='contact' className="bg-manual-gradient font-spartan text-white min-h-screen flex items-center justify-center py-[92px]">
+      <div className="bg-black p-8 rounded-lg shadow-lg max-w-lg w-full ml-8 mr-8 pt-8">
+        <h2 className="text-3xl font-bold mb-6 text-center text-white">Contact Us</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="form-group">
+            <label htmlFor="name" className="block text-lg font-medium mb-2 text-white">Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full border border-gray-300 text-black p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email" className="block text-lg font-medium mb-2 text-white">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full border text-black border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="message" className="block text-lg font-medium mb-2 text-white">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              required
+              className="w-full border text-black border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="4"
+            />
+          </div>
           <button
-            onClick={handleEmailClick}
-            className="bg-[#FF0000] text-white px-6 py-3 rounded-md text-lg hover:bg-[#630404] font-spartan font-bold"
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-white text-black p-3 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           >
-            Contact Us
+            {isLoading ? 'Sending...' : 'Send Message'}
           </button>
-        </div>
-        <div className="mt-16 flex items-center justify-center">
-          <a
-            href="https://github.com/hafsahtariqali/Scriptly..git"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-white text-2xl hover:text-gray-400 transition duration-300"
-          >
-            <Github size={20}/>
-          </a>
-        </div>
+        </form>
+        {feedback && <p className="mt-4 text-center text-lg">{feedback}</p>}
       </div>
-    </section>
+    </div>
   );
 };
 
-export default Contact;
+export default ContactForm;
