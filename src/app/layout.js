@@ -3,6 +3,7 @@ import { League_Spartan, Alegreya } from 'next/font/google';
 import './globals.css';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { ClerkProvider } from '@clerk/nextjs';
 
 const leagueSpartan = League_Spartan({
   weight: ['400', '500', '700'],
@@ -23,12 +24,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    
+    <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
     <html lang="en">
       <body className={`${leagueSpartan.className}`}>
+      <NavBar />
         {children}
       </body>
-
     </html>
+    </ClerkProvider>
   );
 }

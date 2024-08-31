@@ -1,13 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Youtube, Download, ArrowLeft } from 'lucide-react'; // Import the ArrowLeft icon
-import { Tranquiluxe } from 'uvcanvas';
+import React, { useState, useEffect } from 'react';
+import { Youtube, Download } from 'lucide-react';
+import { SignedIn, useUser} from "@clerk/nextjs";
+import { useRouter } from 'next/navigation';
 
 const Dashboard = () => {
     const [showMenu, setShowMenu] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState('');
 
+    const { isLoaded, isSignedIn } = useUser();  // Check user authentication state
+    const router = useRouter();  // Next.js router for programmatic navigation
+
+    useEffect(() => {
+        if (isLoaded && !isSignedIn) {
+            router.push('/sign-in');  // Redirect to your sign-in page
+        }
+    }, [isLoaded, isSignedIn, router]);
+    
     const toggleMenu = () => {
         setShowMenu(!showMenu);
         setSelectedTopic(''); // Clear the selected topic when opening the menu
@@ -33,21 +43,33 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-radial-gradient relative">
-            {/* Add Tranquiluxe background */}
-            <Tranquiluxe className="absolute top-0 left-0 w-full h-full z-0" />
+        <div className="min-h-screen flex flex-col bg-radial-gradient">
+               <SignedIn>
+            {/* <nav className="bg-black text-white p-4 flex justify-between items-center">
+                <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
+                <div className="flex space-x-8 items-center">
+                    <button
+                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                    >
+                        Settings
+                    </button>
+                    <button
+                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                    >
+                        Log Out
+                    </button>
+                </div>
+            </nav> */}
 
-            {/* Main content */}
-            <div className="bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-xl flex flex-1 p-4 space-x-4 m-5 z-10">
-                {/* Show main screen if no menu or topic is selected */}
-                {!showMenu && !selectedTopic && (
-                    <div className="w-full p-4 text-white rounded-lg flex flex-col justify-center items-center relative">
-                        <Youtube size={40} color="#fff" />
-                        <h1 className="text-3xl font-semibold mb-4 mt-4">
-                            Generate a New Script
-                        </h1>
-
-                        <div className="flex space-x-4 w-1/4">
+            <div className="flex flex-1 p-4 space-x-4 m-5">
+                <div className="w-3/4 p-4 border border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center relative">
+                    <Youtube size={40} color="#fff" />
+                    <h2 className="text-2xl font-semibold mb-4 mt-4">
+                        {selectedTopic ? `Script for ${selectedTopic}` : 'Generate a New Script'}
+                    </h2>
+                    
+                    {!selectedTopic && !showMenu && (
+                        <div className="flex space-x-4">
                             <button
                                 onClick={toggleMenu}
                                 className="flex-1 h-12 font-spartan bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
@@ -60,7 +82,6 @@ const Dashboard = () => {
                                 Edit Channel
                             </button>
                         </div>
-                    </div>
                 )}
 
                 {/* Show menu if showMenu is true */}
@@ -126,6 +147,8 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
+            </div>
+         </SignedIn>
         </div>
     );
 };
