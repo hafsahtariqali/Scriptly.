@@ -26,9 +26,7 @@ export default function RootLayout({ children }) {
     
     <html lang="en">
       <body className={`${leagueSpartan.className}`}>
-            <NavBar />
         {children}
-      <Footer />
       </body>
 
     </html>

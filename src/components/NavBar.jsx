@@ -18,12 +18,12 @@ const NavBar =  () => {
       <div className="mx-auto w-full max-w-screen-xl px-3.5 lg:px-20 relative">
       <div className="flex items-center justify-between py-4">
         <div>
-          <a href="/" className="text-2xl font-extrabold text-[#f7a8a8] font-poppins"> 
+          <a href="/" className="text-2xl font-extrabold text-[#FFFF] font-poppins"> 
             scriptly.
           </a>
         </div>
         <nav className="hidden md:block">
-          <ul className="flex flex-row space-x-6 p-3 block text-[#f7a8a8]">
+          <ul className="flex flex-row space-x-6 p-3 block text-[#FFFF]">
             <li>
               <a href="/#features" className="hover:text-gray-400">Features</a>
             </li>
@@ -36,19 +36,25 @@ const NavBar =  () => {
             <li>
               <a href="/#contact" className="hover:text-gray-400">Contact</a>
             </li>
+            <li>
+              <a href="/dashboard" className="hover:text-gray-400">Dashboard</a>
+            </li>
+            <li>
+              <a href="/setup" className="hover:text-gray-400">Setup</a>
+            </li>
           </ul>
         </nav>
         <div className="hidden md:block">
             {user ? (
               <button
-                className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer font-bold"
+                className="font-spartan bg-[#FFFF] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer font-bold"
               >
                 Log Out
               </button>
             ) : (
               <a
                 href="/sign-in"
-                className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer font-bold"
+                className="font-spartan bg-[#FFFF] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer font-bold"
               >
                 Log In
               </a>

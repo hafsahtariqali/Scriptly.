@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Tranquiluxe } from 'uvcanvas';
 import MultiInput from '@/components/MultiInput';
+import { saveChannelData } from '../models/setupModel';
 
 const Setup = () => {
     const [step, setStep] = useState(1);
@@ -10,8 +11,7 @@ const Setup = () => {
         description: '',
         category: '',
         scriptsPerWeek: 1,
-        daysNeeded: [],
-        scriptFormat: [], // Initialize as an array
+        scriptFormat: [],
         videoLength: '',
         contentLanguage: '',
         specifyVideoLength: false
@@ -19,26 +19,13 @@ const Setup = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+
         if (type === 'checkbox') {
-            if (name === 'daysNeeded') {
-                setFormData(prevData => ({
-                    ...prevData,
-                    [name]: checked
-                        ? [...prevData[name], value]
-                        : prevData[name].filter(day => day !== value)
-                }));
-            } else if (name === 'specifyVideoLength') {
                 setFormData(prevData => ({
                     ...prevData,
                     [name]: checked
                 }));
-            }
-        } else if (type === 'text' || type === 'number') {
-            setFormData(prevData => ({
-                ...prevData,
-                [name]: value
-            }));
-        } else if (type === 'select-one') {
+        } else {
             setFormData(prevData => ({
                 ...prevData,
                 [name]: value
@@ -46,12 +33,36 @@ const Setup = () => {
         }
     };
 
-    const handleNext = () => {
-        setStep(step + 1);
-    };
+    const handleNext = () => setStep(step + 1);
+    const handlePrevious = () => setStep(step - 1);
 
-    const handlePrevious = () => {
-        setStep(step - 1);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await saveChannelData('sajjadabdullah345@gmail.com', formData);
+
+            if (response.success) {
+                alert('Channel data saved successfully!');
+                setFormData({
+                    channelName: '',
+                    description: '',
+                    category: '',
+                    scriptsPerWeek: 1,
+                    daysNeeded: [],
+                    scriptFormat: [],
+                    videoLength: '',
+                    contentLanguage: '',
+                    specifyVideoLength: false
+                });
+                setStep(1);
+            } else {
+                alert('Failed to save channel data. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error saving channel data:', error);
+            alert('An error occurred while saving the channel data. Please try again later.');
+        }
     };
 
     return (
@@ -103,16 +114,32 @@ const Setup = () => {
                                     onChange={handleChange}
                                     className='bg-black border border-white rounded w-full py-2 md:py-3 px-4 text-gray-300 leading-tight focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500'
                                 >
-                                    <option value=''>Select a category</option>
-                                    {/* Add all YouTube categories */}
-                                    <option value='Music'>Music</option>
-                                    <option value='Gaming'>Gaming</option>
-                                    <option value='Education'>Education</option>
-                                    <option value='Tech'>Tech</option>
-                                    <option value='Vlogs'>Vlogs</option>
-                                    <option value='Film & Animation'>Film & Animation</option>
-                                    <option value='Autos & Vehicles'>Autos & Vehicles</option>
-                                    {/* Add other categories as needed */}
+                                    <option value="vlog">Vlog</option>
+                                    <option value="gaming">Gaming</option>
+                                    <option value="education">Education</option>
+                                    <option value="beauty">Beauty & Fashion</option>
+                                    <option value="tech">Technology</option>
+                                    <option value="travel">Travel</option>
+                                    <option value="fitness">Fitness</option>
+                                    <option value="food">Food & Cooking</option>
+                                    <option value="music">Music</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="comedy">Comedy</option>
+                                    <option value="news">News & Politics</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="film">Film & Animation</option>
+                                    <option value="howto">How-To & DIY</option>
+                                    <option value="science">Science & Technology</option>
+                                    <option value="kids">Kids</option>
+                                    <option value="art">Art & Design</option>
+                                    <option value="lifestyle">Lifestyle</option>
+                                    <option value="health">Health & Wellness</option>
+                                    <option value="business">Business & Finance</option>
+                                    <option value="auto">Autos & Vehicles</option>
+                                    <option value="pets">Pets & Animals</option>
+                                    <option value="history">History</option>
+                                    <option value="nonprofits">Nonprofits & Activism</option>
+                                    <option value="podcast">Podcasts</option>
                                 </select>
                             </div>
                         </div>
@@ -136,27 +163,6 @@ const Setup = () => {
                                     className='bg-black border border-white rounded w-full py-2 md:py-3 px-4 text-gray-300 leading-tight focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500'
                                 />
                             </div>
-                            <div>
-                                <label className='block text-white text-sm md:text-base font-bold mb-2'>
-                                    Days you need scripts
-                                </label>
-                                <div className='grid grid-cols-2 gap-4'>
-                                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                                        <div key={day} className='flex items-center'>
-                                            <input
-                                                id={day}
-                                                name='daysNeeded'
-                                                type='checkbox'
-                                                value={day}
-                                                checked={formData.daysNeeded.includes(day)}
-                                                onChange={handleChange}
-                                                className='mr-2'
-                                            />
-                                            <label htmlFor={day} className='text-white'>{day}</label>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </form>
                 )}
@@ -175,7 +181,7 @@ const Setup = () => {
                                   }))}
                                 />
                                 <small className='text-gray-400'>
-                                    Enter multiple formats separated by commas.
+                                    Enter a heading and press <strong>Enter</strong>
                                 </small>
                             </div>
                             <div>
@@ -222,37 +228,38 @@ const Setup = () => {
                                     type='text'
                                     value={formData.contentLanguage}
                                     onChange={handleChange}
-                                    placeholder='Enter content language (e.g., English, Spanish)'
                                     className='bg-black border border-white rounded w-full py-2 md:py-3 px-4 text-gray-300 leading-tight focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500'
                                 />
                             </div>
                         </div>
                     </form>
                 )}
-                <div className='flex items-center justify-between mt-6'>
+                <div className='flex justify-between items-center mt-8'>
                     {step > 1 && (
                         <button
                             type='button'
                             onClick={handlePrevious}
-                            className='bg-white hover:bg-gray-200 text-black font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+                            className='bg-red-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-red-700 transition-all duration-200'
                         >
                             Previous
                         </button>
                     )}
-                    {step < 3 ? (
+                    {step < 3 && (
                         <button
                             type='button'
                             onClick={handleNext}
-                            className='bg-[#FF0000] hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+                            className='bg-green-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-green-700 transition-all duration-200'
                         >
                             Next
                         </button>
-                    ) : (
+                    )}
+                    {step === 3 && (
                         <button
                             type='submit'
-                            className='bg-[#FF0000] hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'
+                            onClick={handleSubmit}
+                            className='bg-blue-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-200'
                         >
-                            Submit
+                            Save
                         </button>
                     )}
                 </div>

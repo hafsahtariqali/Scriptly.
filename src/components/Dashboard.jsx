@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Youtube, Download } from 'lucide-react';
+import { Youtube, Download, ArrowLeft } from 'lucide-react'; // Import the ArrowLeft icon
+import { Tranquiluxe } from 'uvcanvas';
 
 const Dashboard = () => {
     const [showMenu, setShowMenu] = useState(false);
@@ -9,11 +10,12 @@ const Dashboard = () => {
 
     const toggleMenu = () => {
         setShowMenu(!showMenu);
+        setSelectedTopic(''); // Clear the selected topic when opening the menu
     };
 
     const selectTopic = (topic) => {
         setSelectedTopic(topic);
-        setShowMenu(false);
+        setShowMenu(false); // Close the menu when selecting a topic
     };
 
     const goBack = () => {
@@ -31,111 +33,98 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-radial-gradient">
-            {/* <nav className="bg-black text-white p-4 flex justify-between items-center">
-                <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
-                <div className="flex space-x-8 items-center">
-                    <button
-                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
-                    >
-                        Settings
-                    </button>
-                    <button
-                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
-                    >
-                        Log Out
-                    </button>
-                </div>
-            </nav> */}
+        <div className="min-h-screen flex flex-col bg-radial-gradient relative">
+            {/* Add Tranquiluxe background */}
+            <Tranquiluxe className="absolute top-0 left-0 w-full h-full z-0" />
 
-            <div className="flex flex-1 p-4 space-x-4 m-5">
-                <div className="w-3/4 p-4 border border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center relative">
-                    <Youtube size={40} color="#fff" />
-                    <h2 className="text-2xl font-semibold mb-4 mt-4">
-                        {selectedTopic ? `Script for ${selectedTopic}` : 'Generate a New Script'}
-                    </h2>
-                    
-                    {!selectedTopic && !showMenu && (
-                        <div className="flex space-x-4">
+            {/* Main content */}
+            <div className="bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-xl flex flex-1 p-4 space-x-4 m-5 z-10">
+                {/* Show main screen if no menu or topic is selected */}
+                {!showMenu && !selectedTopic && (
+                    <div className="w-full p-4 text-white rounded-lg flex flex-col justify-center items-center relative">
+                        <Youtube size={40} color="#fff" />
+                        <h1 className="text-3xl font-semibold mb-4 mt-4">
+                            Generate a New Script
+                        </h1>
+
+                        <div className="flex space-x-4 w-1/4">
                             <button
                                 onClick={toggleMenu}
-                                className="w-3/4 font-spartan bg-[#FF0000] font-roboto px-2 py-2 rounded-md text-white cursor-pointer hover:bg-[#630404] font-bold"
+                                className="flex-1 h-12 font-spartan bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
                             >
-                                Make a Script
+                                Generate
                             </button>
-                            <button className="w-3/4 font-spartan bg-[#FF0000] font-roboto px-2 py-2 rounded-md text-white cursor-pointer hover:bg-[#630404] font-bold">
-                                Change Preferences
-                            </button>
-                        </div>
-                    )}
-
-                    {showMenu && (
-                        <div className="absolute inset-0 bg-[#fcdfdf] text-[#630404] rounded-lg border border-white p-4 flex flex-col justify-center items-center">
-                            <h3 className="font-bold mb-4">Select a Topic:</h3>
-                            <ul className="space-y-4 w-full">
-                                <li
-                                    onClick={() => selectTopic('Topic 1')}
-                                    className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center"
-                                >
-                                    Topic 1
-                                </li>
-                                <li
-                                    onClick={() => selectTopic('Topic 2')}
-                                    className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center"
-                                >
-                                    Topic 2
-                                </li>
-                                <li
-                                    onClick={() => selectTopic('Topic 3')}
-                                    className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center"
-                                >
-                                    Topic 3
-                                </li>
-                            </ul>
                             <button
-                                onClick={toggleMenu}
-                                className="mt-4 font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                                className="flex-1 h-12 font-spartan bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
                             >
-                                Close
+                                Edit Channel
                             </button>
                         </div>
-                    )}
+                    </div>
+                )}
 
-                    {selectedTopic && (
-                        <div className="absolute inset-0 bg-white text-black rounded-lg border border-white p-4 flex flex-col justify-start items-start">
-                            <div className="flex justify-between w-full mb-4">
+                {/* Show menu if showMenu is true */}
+                {showMenu && (
+                    <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-[#630404] rounded-lg p-4 flex flex-col justify-center items-center z-20">
+                        <h3 className="font-bold mb-4 text-white">Select a Topic:</h3>
+                        <ul className="space-y-4 w-full">
+                            <li
+                                onClick={() => selectTopic('Topic 1')}
+                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
+                            >
+                                Topic 1
+                            </li>
+                            <li
+                                onClick={() => selectTopic('Topic 2')}
+                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
+                            >
+                                Topic 2
+                            </li>
+                            <li
+                                onClick={() => selectTopic('Topic 3')}
+                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
+                            >
+                                Topic 3
+                            </li>
+                        </ul>
+                        <button
+                            onClick={toggleMenu}
+                            className="mt-4 font-spartan bg-[#f7a8a8] px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                        >
+                            Close
+                        </button>
+                    </div>
+                )}
+
+                {/* Show script details if a topic is selected */}
+                {selectedTopic && (
+                    <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-lg border border-white p-7 flex flex-col justify-start items-start z-20">
+                        <div className="flex justify-between w-full mb-4">
+                            <button
+                                onClick={goBack}
+                                className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
+                            >
+                                <ArrowLeft size={16} /> {/* Back icon */}
+                            </button>
+                            <div className="flex space-x-2">
                                 <button
-                                    onClick={goBack}
-                                    className="font-spartan text-[#630404] bg-[#f7a8a8] font-roboto px-2 py-1 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
+                                    onClick={regenerateScript}
+                                    className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
                                 >
-                                    Back
+                                    Regenerate
                                 </button>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={regenerateScript}
-                                        className="font-spartan text-[#630404] bg-[#f7a8a8] font-roboto px-2 py-1 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
-                                    >
-                                        Regenerate
-                                    </button>
-                                    <button
-                                        onClick={downloadScript}
-                                        className="font-spartan text-[#630404] bg-[#f7a8a8] font-roboto px-2 py-1 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold flex items-center"
-                                    >
-                                        <Download size={16} />
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={downloadScript}
+                                    className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold flex items-center"
+                                >
+                                    <Download size={16} />
+                                </button>
                             </div>
-                            <h3 className="font-bold mb-4">{`Script for ${selectedTopic}`}</h3>
-                            <p className="text-left">Your Script.</p>
                         </div>
-                    )}
-                </div>
-
-                <div className="w-1/4 p-4 border border-white rounded-lg text-red-300">
-                    <h2 className="text-2xl font-semibold mb-4 text-center">Past Scripts</h2>
-                    <ul>
-                    </ul>
-                </div>
+                        <h3 className="font-bold mb-4 text-white">{`Script for ${selectedTopic}`}</h3>
+                        <p className="text-left text-white">Your Script.</p>
+                    </div>
+                )}
             </div>
         </div>
     );
