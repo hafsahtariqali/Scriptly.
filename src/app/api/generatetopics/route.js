@@ -40,6 +40,8 @@ function createTopicPrompt({
     **Channel Name**: ${channelName}
     **Video Category**: ${videoCategory}
     **Preferences**: ${preferences}
+
+    You will only generate a list of the topics. No other text along with it. You need to just return a list of the topics which the user can choose from. Make sure the topics are related to the user's channel.
     `;
 }
 
