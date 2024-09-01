@@ -128,12 +128,33 @@ const Dashboard = () => {
         await fetchScript(topic);
     };
 
-    const regenerateScript = () => {
-        console.log(`Regenerating script for ${selectedTopic}`);
-    };
+    const regenerateScript = async () => {
+        if (!selectedTopic) return;
+        setLoading(true);
+        setError(null);
+        setScript(''); 
+        setScriptPage(1); 
+        setScriptHasMore(true);
 
+        try {
+            await fetchScript(selectedTopic);
+        } catch (error) {
+            console.error("Failed to regenerate script:", error.message);
+            setError("Failed to regenerate script. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
     const downloadScript = () => {
-        console.log(`Downloading script for ${selectedTopic}`);
+        if (!script) return;
+        const blob = new Blob([script], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedTopic}_script.txt`;
+        document.body.appendChild(a);
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -214,7 +235,7 @@ const Dashboard = () => {
                                 </div>
                                 <h3 className="font-bold mb-4 text-white">{`Script for ${selectedTopic}`}</h3>
                                 <div className="overflow-y-auto" style={{ maxHeight: '60vh' }}>
-                                    <p className="text-left text-white">{script || "Your Script."}</p>
+                                    <p className="text-left text-white">{script || "Loading..."}</p>
                                 </div>
                             </div>
                         )}
