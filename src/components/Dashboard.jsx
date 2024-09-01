@@ -13,6 +13,7 @@ const Dashboard = () => {
     const [error, setError] = useState(null);
     const { isLoaded, isSignedIn } = useUser();
     const router = useRouter();
+    const [script, setScript] = useState('');
 
     useEffect(() => {
         if (isLoaded && !isSignedIn) {
@@ -32,7 +33,7 @@ const Dashboard = () => {
                     channelName: 'Your Channel Name',
                     videoCategory: 'Your Video Category',
                     preferences: '',
-                    numberOfTopics: 5, 
+                    numberOfTopics: 5
                 }),
             });
     
@@ -41,8 +42,8 @@ const Dashboard = () => {
             }
     
             const data = await response.json();
-            if (!Array.isArray(data.topics)) {
-                throw new Error('Fetched data is not an array');
+            if (!data.topics) {
+                throw new Error('No topics found in response');
             }
     
             setTopics(data.topics);
@@ -61,9 +62,44 @@ const Dashboard = () => {
         setShowMenu(!showMenu);
         setSelectedTopic('');
     };
+
+    const fetchScript = async (topic) => {
+        setLoading(true);
+        setError(null);
+    
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic }),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            if (!data.script) {
+                throw new Error('No script found in response');
+            }
+    
+            setScript(data.script);
+        } catch (error) {
+            console.error("Failed to fetch script:", error.message);
+            setError("Failed to fetch script. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+    };
     
     
 
+    const selectTopic = async (topic) => {
+        setSelectedTopic(topic);
+        setShowMenu(false);
+        await fetchScript(topic); 
+    };
+       
     const regenerateScript = () => {
         console.log(`Regenerating script for ${selectedTopic}`);
     };
@@ -98,59 +134,59 @@ const Dashboard = () => {
                             </div>
                         )}
 
-{showMenu && (
-    <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-[#630404] rounded-lg p-4 flex flex-col justify-center items-center z-20">
-        <h3 className="font-bold mb-4 text-white">Select a Topic:</h3>
-        {loading ? (
-            <p className="text-white">Loading topics...</p>
-        ) : error ? (
-            <p className="text-red-500">{error}</p>
-        ) : (
-            <ul>
-                {topics.map((topic, index) => (
-                    <li key={index} onClick={() => selectTopic(topic)} className="cursor-pointer text-white">
-                        {topic}
-                    </li>
-                ))}
-            </ul>
-        )}
-        <button
-            onClick={toggleMenu}
-            className="mt-4 font-spartan bg-[#f7a8a8] px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
-        >
-            Close
-        </button>
-    </div>
-)}
-
+                        {showMenu && (
+                            <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-[#630404] rounded-lg p-4 flex flex-col justify-center items-center z-20">
+                                <h3 className="font-bold mb-4 text-white">Select a Topic:</h3>
+                                {loading ? (
+                                    <p className="text-white">Loading topics...</p>
+                                ) : error ? (
+                                    <p className="text-red-500">{error}</p>
+                                ) : (
+                                    <ul>
+                                        {topics.map((topic, index) => (
+                                            <li key={index} onClick={() => selectTopic(topic)} className="cursor-pointer text-white">
+                                                {topic}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                <button
+                                    onClick={toggleMenu}
+                                    className="mt-4 font-spartan bg-[#f7a8a8] px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        )}
 
                         {selectedTopic && (
                             <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-lg border border-white p-7 flex flex-col justify-start items-start z-20">
-                                <div className="flex justify-between w-full mb-4">
-                                    <button
-                                        onClick={() => setSelectedTopic('')}
-                                        className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
-                                    >
-                                        <ArrowLeft size={16} />
-                                    </button>
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={regenerateScript}
-                                            className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
-                                        >
-                                            Regenerate
-                                        </button>
-                                        <button
-                                            onClick={downloadScript}
-                                            className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold flex items-center"
-                                        >
-                                            <Download size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                                <h3 className="font-bold mb-4 text-white">{`Script for ${selectedTopic}`}</h3>
-                                <p className="text-left text-white">Your Script.</p>
-                            </div>
+    <div className="flex justify-between w-full mb-4">
+        <button
+            onClick={() => setSelectedTopic('')}
+            className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
+        >
+            <ArrowLeft size={16} />
+        </button>
+        <div className="flex space-x-2">
+            <button
+                onClick={regenerateScript}
+                className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
+            >
+                Regenerate
+            </button>
+            <button
+                onClick={downloadScript}
+                className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold flex items-center"
+            >
+                <Download size={16} />
+            </button>
+        </div>
+    </div>
+    <h3 className="font-bold mb-4 text-white">{`Script for ${selectedTopic}`}</h3>
+    <p className="text-left text-white">{script || "Your Script."}</p>
+</div>
+
                         )}
                     </div>
                 </div>
