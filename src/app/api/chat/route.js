@@ -2,96 +2,92 @@ import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
 export async function POST(req) {
-    const { channelName, scriptFormat, videoCategory, preferences, videoLength, numberOfScripts=2 } = await req.json();
+    const {
+        channelName,
+        scriptFormat,
+        videoCategory,
+        preferences,
+        videoLength,
+        numberOfScripts = 2,
+        generateTopicsOnly = false
+    } = await req.json();
 
-   const systemprompt = `
-You are a highly skilled AI assistant specialized in creating YouTube video scripts. Your task is to generate detailed, engaging, and informative scripts tailored to the user's specifications.
+    const systemprompt = `
+    You are a highly skilled AI assistant specialized in creating YouTube video scripts. First, generate a list of potential topics or headlines for the video scripts based on the user's input. Then, if requested, generate the scripts themselves.
 
-**Inputs:**
-- **Channel Name**: ${channelName}
-- **Script Format**: ${scriptFormat}
-- **Video Category**: ${videoCategory}
-- **Preferences**: ${preferences}
-- **Video Length**: ${videoLength} minutes
-- **Number of Scripts**: ${numberOfScripts}
+    **Inputs:**
+    - **Channel Name**: ${channelName}
+    - **Script Format**: ${scriptFormat}
+    - **Video Category**: ${videoCategory}
+    - **Preferences**: ${preferences}
+    - **Video Length**: ${videoLength} minutes
+    - **Number of Scripts**: ${numberOfScripts}
 
-**Instructions:**
-1. **Introduction**: Begin each script with a captivating introduction that captures the essence and style of the "${channelName}" channel. Ensure the tone aligns with the "${videoCategory}" genre and engages the target audience.
-2. **Script Format**: Adhere strictly to the specified format, "${scriptFormat}". Include all necessary sections such as Introduction, Main Content, Calls to Action, and Conclusion, or any specific format elements provided.
-3. **Content Development**: Develop rich, informative content for the "${videoCategory}" category. Ensure each script provides unique insights, valuable information, and engaging narratives. Use a storytelling approach when applicable.
-4. **User Preferences**: Incorporate any specific preferences or details from "${preferences}". This includes covering particular topics, using a certain tone (e.g., humorous, serious, informative), and addressing any special requests.
-5. **Video Length**: Each script should be crafted to fill approximately "${videoLength}" minutes. Aim for around ${videoLength * 150} words per minute. Provide thorough explanations, examples, case studies, or scenarios as needed to fill this duration.
-6. **Calls to Action**: Integrate effective calls to action throughout each script. Encourage viewers to engage with the channel by subscribing, liking, commenting, or following on other social media platforms.
-7. **Conclusion**: End each script with a strong conclusion that summarizes key points and encourages further engagement and action from viewers.
-8. **Multiple Scripts**: If "${numberOfScripts}" is greater than 1, generate "${numberOfScripts}" unique scripts. Each script should offer different content while adhering to the provided inputs and preferences.
+    **Instructions:**
+    1. **Generate Topics**: Create a list of 3-5 engaging video topics or headlines that align with the style and tone of the "${channelName}" channel and fit within the "${videoCategory}" category.
+    2. **Script Generation (Optional)**: If script generation is requested, use the selected topic and generate detailed scripts based on the user's input.
 
-**Output:**
-- Generate up to "${numberOfScripts}" complete YouTube video script(s) that strictly follow the provided format, content guidelines, and length. Each script should be coherent, engaging, and perfectly tailored to the specific needs and style of the channel.
-- Ensure that each script is well-structured, flows logically, and contains no grammatical or factual errors. Use professional language and ensure the script is ready for immediate use.
-`;
-
-
+    **Output:**
+    - If "generateTopicsOnly" is true, return only the list of topics or headlines.
+    - Otherwise, generate up to "${numberOfScripts}" complete YouTube video script(s) that strictly follow the provided format, content guidelines, and length. Each script should be coherent, engaging, and perfectly tailored to the specific needs and style of the channel.
+    `;
 
     const groq = new Groq({
-        apiKey: process.env.API_KEY
+        apiKey: process.env.GROQ_API_KEY
     });
 
-    async function collectScripts(completion) {
-        let scripts = [];
-        let currentScript = '';
+    async function collectContent(completion) {
+        let content = '';
         for await (const chunk of completion) {
-            const content = chunk?.choices[0]?.delta?.content;
-            if (content) {
-                currentScript += content;
-
-                if (currentScript.includes('---end of script---')) {
-                    scripts.push(currentScript.trim());
-                    currentScript = '';
-                }
+            const chunkContent = chunk?.choices[0]?.delta?.content;
+            if (chunkContent) {
+                content += chunkContent;
             }
         }
-
-        if (currentScript.trim()) {
-            scripts.push(currentScript.trim());
-        }
-
-        return scripts;
+        return content.trim();
     }
 
-    const completion = await groq.chat.completions.create({
-        messages: [
-            {
-                role: 'user',
-                content: systemprompt,
+    try {
+        const completion = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: systemprompt }],
+            model: "llama3-8b-8192",
+            stream: true,
+        });
+
+        const responseContent = await collectContent(completion);
+
+        let jsonResponse;
+        try {
+            // Attempt to parse JSON
+            jsonResponse = JSON.parse(responseContent);
+
+            if (generateTopicsOnly && !Array.isArray(jsonResponse)) {
+                throw new Error('Expected an array of topics');
             }
-        ],
-        model: "llama3-8b-8192",
-        stream: true,
-    });
-
-    const scripts = await collectScripts(completion);
-
-    if (scripts.length !== numberOfScripts) {
-        console.error(`Expected ${numberOfScripts} scripts, but got ${scripts.length}`);
-    }
-
-    const stream = new ReadableStream({
-        start(controller) {
-            const encoder = new TextEncoder();
-            try {
-                const responseContent = scripts.join('\n\n');
-                controller.enqueue(encoder.encode(responseContent));
-            } catch (error) {
-                console.error(error);
-                controller.error(error);
-            } finally {
-                controller.close();
-            }
+        } catch (e) {
+            // Handle plain text or other structured formats
+            jsonResponse = parseNonJsonResponse(responseContent);
         }
-    });
 
-    return new NextResponse(stream);
+        if (generateTopicsOnly) {
+            return NextResponse.json(jsonResponse.topics || jsonResponse);
+        }
+
+        return NextResponse.json(jsonResponse);
+    } catch (error) {
+        console.error('Error in completion request:', error);
+        return NextResponse.json({ error: 'Failed to generate content' });
+    }
 }
+
+// Example function to handle non-JSON response formats
+function parseNonJsonResponse(content) {
+    // Implement parsing logic based on expected format
+    // For example, if response is a comma-separated list of topics:
+    const topics = content.split('\n').filter(line => line.trim());
+    return { topics };
+}
+
 
 
 
