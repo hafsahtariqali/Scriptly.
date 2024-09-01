@@ -61,30 +61,8 @@ Ensure clarity and readability with appropriate headings, bullet points, and lin
 `;
 
     const groq = new Groq({
-        apiKey: process.env.API_KEY
+        apiKey: process.env.GROQ_API_KEY
     });
-
-    async function collectScripts(completion) {
-        let scripts = [];
-        let currentScript = '';
-        for await (const chunk of completion) {
-            const content = chunk?.choices[0]?.delta?.content;
-            if (content) {
-                currentScript += content;
-
-                if (currentScript.includes('---end of script---')) {
-                    scripts.push(currentScript.trim());
-                    currentScript = '';
-                }
-            }
-        }
-
-        if (currentScript.trim()) {
-            scripts.push(currentScript.trim());
-        }
-
-        return scripts;
-    }
 
     const completion = await groq.chat.completions.create({
         messages: [
