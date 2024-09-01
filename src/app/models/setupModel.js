@@ -3,11 +3,15 @@ import { doc, setDoc, updateDoc, getDoc } from '@firebase/firestore';
 
 
 
-//this is to add a new user with its information
 export const saveChannelData = async (userEmail, channelData) => {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toISOString().slice(0, 10);
+
   try {
+    // Check for validation errors
     if (channelData.weeklyScriptLimit > 10) {
-      throw new Error('Weekly script limit cannot exceed 10.');
+      alert('Weekly script limit cannot exceed 10.');
+      return false;
     }
 
     const userRef = doc(db, 'users', userEmail);
@@ -21,12 +25,16 @@ export const saveChannelData = async (userEmail, channelData) => {
       plan: 'Free',
       language: channelData.contentLanguage,
       scriptsGeneratedThisWeek: 0, 
+      userCreated: formattedDate
     }); 
 
+    // Successfully saved
     return true;
   } catch (error) {
     console.error('Error saving channel data: ', error);
-    throw error;
+    // Display error to the user
+    alert('Failed to save data. Please try again.');
+    return false;
   }
 };
 

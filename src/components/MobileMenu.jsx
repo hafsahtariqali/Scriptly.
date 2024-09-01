@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { SignedIn, SignedOut, UserButton, useUser, useClerk } from '@clerk/nextjs';
 
@@ -29,10 +29,29 @@ const MobileMenu = () => {
   const [navOpen, setNavOpen] = useState(false);
   const { user } = useUser();
   const { signOut } = useClerk(); 
+  const [editable, setEditable] = useState(false)
+
 
   const handleLinkClick = () => {
     setNavOpen(false); // Close the menu when a nav link is clicked
   };
+
+  // Fetch channel data when the user is signed in and update editable state
+  useEffect(() => {
+    const fetchChannelData = async () => {
+      if (user?.email) {
+        try {
+          const channelData = await getChannelData(user.email);
+          // Set editable to true if channelName is not empty, otherwise false
+          setEditable(channelData?.channelName !== '');
+        } catch (error) {
+          console.error("Error fetching channel data:", error);
+        }
+      }
+    };
+
+    fetchChannelData();
+  }, [user]);
 
   return (
     <div className="block md:hidden">
@@ -65,8 +84,17 @@ const MobileMenu = () => {
       )}
       </SignedOut>
       <SignedIn>
-        <UserButton />
-      </SignedIn>
+              <div className="flex flex-row gap-5">
+                <button className="text-white">
+                  <a href="/setup">Setup</a>
+                </button>
+                {editable && (<button className="text-white">
+                  <a href="/dashboard">Dashboard</a>
+                </button>)}
+                <UserButton />
+              </div>
+            </SignedIn>
+
     </div>
   );
 };

@@ -1,42 +1,43 @@
-'use client'
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
+import FOG from "vanta/dist/vanta.fog.min";
+import * as THREE from "three";
 
 const VantaEffect = () => {
-    const vantaRef = useRef(null);
+  const [vantaEffect, setVantaEffect] = useState(null);
+  const vantaRef = useRef(null);
 
-    useEffect(() => {
-        const VANTA = window.VANTA; // Access Vanta from the global window object
-        const THREE = window.THREE; // Access THREE from the global window object
+  useEffect(() => {
+    if (!vantaEffect) {
+      setVantaEffect(
+        FOG({
+          el: vantaRef.current,
+          THREE: THREE,
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.0,
+          minWidth: 200.0,
+          highlightColor: 0x720000,
+          midtoneColor: 0x7c0000,
+          lowlightColor: 0x0,
+          baseColor: 0x340101,
+          blurFactor: 0.9,
+          speed: 4.7,
+          zoom: 1.4,
+        })
+      );
+    }
+    return () => {
+      if (vantaEffect) vantaEffect.destroy();
+    };
+  }, [vantaEffect]);
 
-        if (VANTA && THREE) {
-            const vantaEffect = VANTA.FOG({
-                el: vantaRef.current,
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.00,
-                minWidth: 200.00,
-                highlightColor: 0x2c4066,
-                midtoneColor: 0x7c0000,
-                lowlightColor: 0x0,
-                baseColor: 0x340101,
-                blurFactor: 0.72,
-                speed: 3.10,
-                zoom: 1.10
-            });
-
-            return () => {
-                // Clean up the effect when the component unmounts
-                if (vantaEffect) vantaEffect.destroy();
-            };
-        }
-    }, []);
-
-    return (
-        <div ref={vantaRef} style={{ height: '100vh', width: '100%' }}>
-            {/* Your content goes here */}
-        </div>
-    );
+  return (
+    <div
+      ref={vantaRef}
+      className="fixed top-0 left-0 w-full h-full z-[-1] overflow-hidden"
+    ></div>
+  );
 };
 
 export default VantaEffect;

@@ -48,6 +48,7 @@ const MultiInput = ({ value, onChange }) => {
         onKeyDown={handleKeyDown}
         placeholder='Press Enter to add a format'
         className='bg-black border border-white rounded py-2 px-4 text-gray-300 leading-tight focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500'
+        required
       />
     </div>
   );

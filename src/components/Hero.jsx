@@ -4,7 +4,7 @@ const Hero = () => {
   return (
     <div className="relative h-[100vh] flex items-center justify-center bg-black">
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full h-full bg-hero-gradient"></div>
+        <div className="w-full h-full bg-manual-gradient"></div>
       </div>
       <div className="relative z-10 text-center">
         <h1 className="text-center text-white font-spartan font-bold text-5xl sm:text-6xl tracking-tighter">

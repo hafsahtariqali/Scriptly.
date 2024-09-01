@@ -1,156 +1,268 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Youtube, Download } from 'lucide-react';
-import { SignedIn, useUser} from "@clerk/nextjs";
+import { Youtube, Download, ArrowLeft, RefreshCcw } from 'lucide-react';
+import { SignedIn, useUser } from "@clerk/nextjs";
 import { useRouter } from 'next/navigation';
+import VantaEffect from './VanitaEffect';
+import { getChannelData, updateChannelData } from '@/app/models/setupModel';
+import MarkdownRenderer from './MarkDown';
+import { marked } from 'marked';
+import { generateAndDownloadDocx } from '@/app/utils/docDownload';
+import Snackbar from './Snackbar';
 
 const Dashboard = () => {
-    const [showMenu, setShowMenu] = useState(false);
-    const [selectedTopic, setSelectedTopic] = useState('');
+  const [showMenu, setShowMenu] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [scriptData, setScriptData] = useState(''); 
+  const [prevScriptData, setprevScriptData] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState(''); 
+  const { user , isLoaded, isSignedIn} = useUser();
+  const [userData, setUserData] = useState({})
+  const userEmail = user?.primaryEmailAddress?.emailAddress;
+  const router = useRouter(); 
 
-    const { isLoaded, isSignedIn } = useUser();  // Check user authentication state
-    const router = useRouter();  // Next.js router for programmatic navigation
 
-    useEffect(() => {
-        if (isLoaded && !isSignedIn) {
-            router.push('/sign-in');  // Redirect to your sign-in page
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+
+
+  const getCurrentDate = () => {
+    const currentDate = new Date();
+    return currentDate.toISOString().slice(0, 10); 
+  };
+
+
+  const showSnackbar = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+    setSelectedTopic('');
+    setScriptData(''); 
+  };
+
+  const selectTopic = (topic) => {
+    setSelectedTopic(topic);
+    setShowMenu(false);
+    generateScript();
+  };
+
+  const goBack = () => {
+    setSelectedTopic('');
+    setScriptData(''); 
+  };
+
+  const downloadScript = async () => {
+    if (scriptData) {
+  
+      generateAndDownloadDocx(`${selectedTopic}.docx`, marked.parse(scriptData));
+      
+  
+      try {
+        if(scriptData !== prevScriptData){
+
+        const updatedData = {
+          scriptsGeneratedThisWeek: (userData.scriptsGeneratedThisWeek || 0) + 1,
+        };
+  
+  
+        await updateChannelData(userEmail, updatedData);
+          setUserData((prev) => ({
+          ...prev,
+          ...updatedData,
+        }));
+        showSnackbar(`Total scripts downloaded this week: ${userData.scriptsGeneratedThisWeek+1}`)
+        console.log('Channel data updated:', updatedData);}
+        else{
+            showSnackbar('Downloading same script')
         }
-    }, [isLoaded, isSignedIn, router]);
+
+      } catch (error) {
+        console.error('Error updating channel data:', error);
+      }
+
+      setprevScriptData(scriptData)
+
+    }
+  };
+  
+
+  const regenerateScript = () => {
+    console.log(`Regenerating script for ${selectedTopic}`);
+    generateScript(); 
+  };
+
+
+  const generateScript = async (e) => {
+    if (e) e.preventDefault();
+    setLoading(true); 
+    const formData = await getChannelData(userEmail);
+    setUserData(formData)
+    const { weeklyScriptLimit, scriptsGeneratedThisWeek, userCreated } = formData;
+
+    if (userCreated === getCurrentDate()) {
+        const resetData = { scriptsGeneratedThisWeek: 0 };
+        await updateChannelData(userEmail, resetData);
+        setUserData((prev) => ({
+          ...prev,
+          ...resetData,
+        }));
+      }
+
+    if (scriptsGeneratedThisWeek >= weeklyScriptLimit) {
+        alert("You have reached your scripts limit this week. Update your scripts limit in setup or change your plan.");
+        setLoading(false);
+        return;
+      }
+
+    console.log('User data', userData)
+    const modifiedFormData = {
+      ...formData,
+      selectedTopic: selectedTopic,
+    };
+
+    console.log(modifiedFormData);
     
-    const toggleMenu = () => {
-        setShowMenu(!showMenu);
-        setSelectedTopic(''); // Clear the selected topic when opening the menu
-    };
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(modifiedFormData),
+      });
 
-    const selectTopic = (topic) => {
-        setSelectedTopic(topic);
-        setShowMenu(false); // Close the menu when selecting a topic
-    };
+      if (!response.ok) {
+        throw new Error(
+          "Error generating script, check your plan or try rewriting the prompt. If the issue persists, contact admin."
+        );
+      }
 
-    const goBack = () => {
-        setSelectedTopic('');
-    };
+      const result = await response.text(); 
+      setScriptData(result);
+      console.log('Script received:', result);
+    } catch (error) {
+      console.error("Error fetching script:", error);
+    } finally {
+      setLoading(false); 
+    }
+  };
 
-    const regenerateScript = () => {
-        console.log(`Regenerating script for ${selectedTopic}`);
-        // Logic to regenerate the script can go here
-    };
+  return (
+    <div className="min-h-screen flex flex-col bg-radial-gradient overflow-hidden">
+      <SignedIn>
+        <div className="flex flex-1 p-4 space-x-4 m-5 z-0">
+          <VantaEffect />
+          <div className="custom-scrollbar h-screen w-full p-4 border border-white text-white rounded-lg flex flex-col justify-center items-center relative overflow-y-auto">
+            <Youtube size={40} color="#fff" />
+            <h2 className="text-2xl font-semibold mb-4 mt-4">
+              {selectedTopic ? `Script for ${selectedTopic}` : 'Generate a New Script'}
+            </h2>
 
-    const downloadScript = () => {
-        console.log(`Downloading script for ${selectedTopic}`);
-        // Logic to download the script can go here
-    };
+            {!selectedTopic && !showMenu && (
+              <div className="flex space-x-4 mb-4">
+                <button
+                  onClick={toggleMenu}
+                  className="bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000]"
+                >
+                  Generate
+                </button>
+                <button
+                    onClick={()=>router.push('/setup')}
+                  className="bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000]"
+                >
+                  Edit Channel
+                </button>
+              </div>
+            )}
 
-    return (
-        <div className="min-h-screen flex flex-col bg-radial-gradient">
-               <SignedIn>
-            {/* <nav className="bg-black text-white p-4 flex justify-between items-center">
-                <div className="text-xl font-bold font-spartan"><span className='text-white'>scriptly.</span></div>
-                <div className="flex space-x-8 items-center">
+            {showMenu && (
+              <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-white rounded-lg p-4 flex flex-col justify-center items-center z-20">
+                <h3 className="font-bold mb-4">Select a Topic:</h3>
+                <ul className="space-y-4 w-full">
+                  <li
+                    onClick={() => selectTopic('Web Development')}
+                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
+                  >
+                    Web Development
+                  </li>
+                  <li
+                    onClick={() => selectTopic('Mobile Development')}
+                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
+                  >
+                    Mobile Development
+                  </li>
+                  <li
+                    onClick={() => selectTopic('AI and World in 2024')}
+                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
+                  >
+                    AI and World in 2024
+                  </li>
+                </ul>
+                <button
+                  onClick={toggleMenu}
+                  className="mt-4 bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
+                >
+                  Close
+                </button>
+              </div>
+            )}
+
+            {selectedTopic && (
+              <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-lg  p-4 flex flex-col justify-start items-start z-20 " style={{ maxHeight: 'calc(100vh - 80px)' }}>
+                <div className="flex justify-between w-full mb-4">
+                  <button
+                    onClick={goBack}
+                    className="bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                  <div className="flex space-x-2">
                     <button
-                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                      onClick={regenerateScript}
+                      className="bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
                     >
-                        Settings
+                      <RefreshCcw></RefreshCcw>
                     </button>
                     <button
-                        className="font-spartan bg-[#f7a8a8] font-roboto px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
+                      onClick={downloadScript}
+                      className="bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold flex items-center"
                     >
-                        Log Out
+                      <Download size={16} />
                     </button>
+                  </div>
                 </div>
-            </nav> */}
-
-            <div className="flex flex-1 p-4 space-x-4 m-5">
-                <div className="w-3/4 p-4 border border-white text-red-300 font-poppins rounded-lg flex flex-col justify-center items-center relative">
-                    <Youtube size={40} color="#fff" />
-                    <h2 className="text-2xl font-semibold mb-4 mt-4">
-                        {selectedTopic ? `Script for ${selectedTopic}` : 'Generate a New Script'}
-                    </h2>
-                    
-                    {!selectedTopic && !showMenu && (
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={toggleMenu}
-                                className="flex-1 h-12 font-spartan bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
-                            >
-                                Generate
-                            </button>
-                            <button
-                                className="flex-1 h-12 font-spartan bg-[#FF0000] p-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
-                            >
-                                Edit Channel
-                            </button>
-                        </div>
+                <h3 className="font-bold mb-4">{`Script for ${selectedTopic}`}</h3>
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-5 h-5 border-4 border-t-transparent border-red-600 border-solid rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </div>
+                ) : (
+                  <MarkdownRenderer markdown={scriptData} />
                 )}
-
-                {/* Show menu if showMenu is true */}
-                {showMenu && (
-                    <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-[#630404] rounded-lg p-4 flex flex-col justify-center items-center z-20">
-                        <h3 className="font-bold mb-4 text-white">Select a Topic:</h3>
-                        <ul className="space-y-4 w-full">
-                            <li
-                                onClick={() => selectTopic('Topic 1')}
-                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
-                            >
-                                Topic 1
-                            </li>
-                            <li
-                                onClick={() => selectTopic('Topic 2')}
-                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
-                            >
-                                Topic 2
-                            </li>
-                            <li
-                                onClick={() => selectTopic('Topic 3')}
-                                className="cursor-pointer hover:bg-[#f47e7e] p-2 rounded-md text-center text-white"
-                            >
-                                Topic 3
-                            </li>
-                        </ul>
-                        <button
-                            onClick={toggleMenu}
-                            className="mt-4 font-spartan bg-[#f7a8a8] px-4 py-2 rounded-md text-[#630404] cursor-pointer hover:bg-[#f47e7e] font-bold"
-                        >
-                            Close
-                        </button>
-                    </div>
-                )}
-
-                {/* Show script details if a topic is selected */}
-                {selectedTopic && (
-                    <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-lg border border-white p-7 flex flex-col justify-start items-start z-20">
-                        <div className="flex justify-between w-full mb-4">
-                            <button
-                                onClick={goBack}
-                                className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
-                            >
-                                <ArrowLeft size={16} /> {/* Back icon */}
-                            </button>
-                            <div className="flex space-x-2">
-                                <button
-                                    onClick={regenerateScript}
-                                    className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold"
-                                >
-                                    Regenerate
-                                </button>
-                                <button
-                                    onClick={downloadScript}
-                                    className="font-spartan text-[#630404] bg-[#f7a8a8] px-4 py-2 rounded-md cursor-pointer hover:bg-[#f47e7e] font-bold flex items-center"
-                                >
-                                    <Download size={16} />
-                                </button>
-                            </div>
-                        </div>
-                        <h3 className="font-bold mb-4 text-white">{`Script for ${selectedTopic}`}</h3>
-                        <p className="text-left text-white">Your Script.</p>
-                    </div>
-                )}
-            </div>
-            </div>
-         </SignedIn>
+              </div>
+            )}
+          </div>
         </div>
-    );
+        <Snackbar
+        message={snackbarMessage}
+        open={snackbarOpen}
+        onClose={() => setSnackbarOpen(false)}
+      />
+      </SignedIn>
+    </div>
+  );
 };
 
 export default Dashboard;

@@ -2,35 +2,63 @@ import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
 export async function POST(req) {
-    const { channelName, scriptFormat, videoCategory, preferences, videoLength, numberOfScripts=2 } = await req.json();
+    const { channelName, channelDescription, category, headings, videoLength, weeklyScriptsLimit, selectedTopic } = await req.json();
 
-   const systemprompt = `
-You are a highly skilled AI assistant specialized in creating YouTube video scripts. Your task is to generate detailed, engaging, and informative scripts tailored to the user's specifications.
+    const systemPrompt = `
+You are an advanced AI assistant skilled in crafting detailed, engaging, and audience-targeted YouTube video scripts. Your goal is to produce scripts that perfectly match the user's requirements, capturing the channel's style and the chosen topic.
 
 **Inputs:**
 - **Channel Name**: ${channelName}
-- **Script Format**: ${scriptFormat}
-- **Video Category**: ${videoCategory}
-- **Preferences**: ${preferences}
-- **Video Length**: ${videoLength} minutes
-- **Number of Scripts**: ${numberOfScripts}
+- **Script Format**: ${headings}
+- **Video Category**: ${category}
+- **Channel Description/Preferences**: ${channelDescription}
+- **Desired Video Length**: ${videoLength} minutes
+- **Number of Scripts**: ${weeklyScriptsLimit}
+- **Selected Topic**: ${selectedTopic}
 
 **Instructions:**
-1. **Introduction**: Begin each script with a captivating introduction that captures the essence and style of the "${channelName}" channel. Ensure the tone aligns with the "${videoCategory}" genre and engages the target audience.
-2. **Script Format**: Adhere strictly to the specified format, "${scriptFormat}". Include all necessary sections such as Introduction, Main Content, Calls to Action, and Conclusion, or any specific format elements provided.
-3. **Content Development**: Develop rich, informative content for the "${videoCategory}" category. Ensure each script provides unique insights, valuable information, and engaging narratives. Use a storytelling approach when applicable.
-4. **User Preferences**: Incorporate any specific preferences or details from "${preferences}". This includes covering particular topics, using a certain tone (e.g., humorous, serious, informative), and addressing any special requests.
-5. **Video Length**: Each script should be crafted to fill approximately "${videoLength}" minutes. Aim for around ${videoLength * 150} words per minute. Provide thorough explanations, examples, case studies, or scenarios as needed to fill this duration.
-6. **Calls to Action**: Integrate effective calls to action throughout each script. Encourage viewers to engage with the channel by subscribing, liking, commenting, or following on other social media platforms.
-7. **Conclusion**: End each script with a strong conclusion that summarizes key points and encourages further engagement and action from viewers.
-8. **Multiple Scripts**: If "${numberOfScripts}" is greater than 1, generate "${numberOfScripts}" unique scripts. Each script should offer different content while adhering to the provided inputs and preferences.
+
+1. **Captivating Introduction**:
+   - Start with a compelling introduction that aligns with the tone and style of "${channelName}".
+   - Ensure the introduction is tailored to resonate with viewers interested in "${category}" content.
+
+2. **Adherence to Script Format**:
+   - Follow the provided format: "${headings}".
+   - Include essential elements like Introduction, Main Content, Calls to Action, and Conclusion.
+
+3. **Content Development**:
+   - Create high-quality, informative content relevant to "${category}".
+   - Use storytelling techniques, data, examples, or anecdotes to engage the audience.
+
+4. **Customization to User Preferences**:
+   - Incorporate details and stylistic elements from "${channelDescription}".
+   - Adjust the tone as per preferences (e.g., humorous, serious).
+
+5. **Targeted Script Length**:
+   - Each script should match the desired video length of "${videoLength}" minutes.
+   - Aim for approximately ${videoLength * 200} words per minute.
+
+6. **Effective Calls to Action**:
+   - Include strong, strategically placed calls to action.
+   - Encourage engagement through subscriptions, likes, comments, and shares.
+
+7. **Strong Conclusion**:
+   - End with a summary of key points and a memorable final message.
+   - Include a compelling call to action for further viewer engagement.
+
+8. **Multiple Script Generation**:
+   - If "${weeklyScriptsLimit}" is specified, generate that many unique versions.
+   - Each script should offer distinct content but adhere to overall guidelines.
 
 **Output:**
-- Generate up to "${numberOfScripts}" complete YouTube video script(s) that strictly follow the provided format, content guidelines, and length. Each script should be coherent, engaging, and perfectly tailored to the specific needs and style of the channel.
-- Ensure that each script is well-structured, flows logically, and contains no grammatical or factual errors. Use professional language and ensure the script is ready for immediate use.
+- Provide "${weeklyScriptsLimit}" complete YouTube video script(s) tailored to the inputs.
+- Each script must be well-structured, engaging, and ready for use.
+- Ensure scripts are free from errors and maintain a professional tone.
+- Clearly indicate the end of each script with "---end of script---" for easy differentiation.
+
+Ensure clarity and readability with appropriate headings, bullet points, and line breaks to enhance the script's impact and value.
+
 `;
-
-
 
     const groq = new Groq({
         apiKey: process.env.API_KEY
@@ -62,7 +90,7 @@ You are a highly skilled AI assistant specialized in creating YouTube video scri
         messages: [
             {
                 role: 'user',
-                content: systemprompt,
+                content: systemPrompt,
             }
         ],
         model: "llama3-8b-8192",
@@ -71,8 +99,8 @@ You are a highly skilled AI assistant specialized in creating YouTube video scri
 
     const scripts = await collectScripts(completion);
 
-    if (scripts.length !== numberOfScripts) {
-        console.error(`Expected ${numberOfScripts} scripts, but got ${scripts.length}`);
+    if (scripts.length !== weeklyScriptsLimit) {
+        console.error(`Expected ${weeklyScriptsLimit} scripts, but got ${scripts.length}`);
     }
 
     const stream = new ReadableStream({
@@ -92,72 +120,3 @@ You are a highly skilled AI assistant specialized in creating YouTube video scri
 
     return new NextResponse(stream);
 }
-
-
-
-//if want to test using OPENROUTER then the result will be accurate but the UX is going to be declined because of 
-//taking much time to generate the response
-
-
-// import { NextResponse } from 'next/server';
-// import OpenAI from 'openai';
-
-// export async function POST(req) {
-//     const { channelName, scriptFormat, videoCategory, preferences, videoLength, numberOfDays, numberOfScripts=2 } = await req.json();
-
-//     const openai = new OpenAI({ 
-//         apiKey: process.env.OPENROUTER_API_KEY,
-//         baseURL: "https://openrouter.ai/api/v1",
-//     });
-
-//     const scriptsByDay = {};
-
-//     for (let i = 0; i < numberOfScripts; i++) {
-//         const systemPrompt = `
-//             You are an AI assistant specialized in generating YouTube video scripts. Your task is to create a comprehensive script based on the user's input parameters.
-//             **Inputs:**
-//             - **Channel Name**: ${channelName}
-//             - **Script Format**: ${scriptFormat}
-//             - **Video Category**: ${videoCategory}
-//             - **Preferences**: ${preferences}
-//             - **Video Length**: ${videoLength} minutes
-//             - **Script Number**: ${i + 1} of ${numberOfScripts}
-
-//             **Instructions:**
-//             1. **Introduction**: Start with a captivating introduction fitting the style of the "${channelName}" channel, aligning with the "${videoCategory}" genre.
-//             2. **Script Format**: Follow the structure indicated in "${scriptFormat}".
-//             3. **Content Development**: Develop engaging content.
-//             4. **User Preferences**: Include any preferences.
-//             5. **Video Length**: Match the script length to "${videoLength}" minutes.
-//             6. **Calls to Action**: Include calls to action.
-//             7. **Conclusion**: End with a strong conclusion.
-
-//             **Output:**
-//             - Generate a complete YouTube video script based on these guidelines.
-//         `;
-
-//         try {
-//             const completion = await openai.chat.completions.create({
-//                 messages: [{ role: 'system', content: systemPrompt }],
-//                 model: 'nousresearch/hermes-3-llama-3.1-405b'
-//             });
-
-//             const scriptContent = completion?.choices[0]?.message?.content;
-
-//             if (scriptContent) {
-//                 scriptsByDay[`Script ${i + 1}`] = scriptContent;
-//             }
-//         } catch (error) {
-//             console.error(`Error generating script for Script ${i + 1}:`, error);
-//             scriptsByDay[`Script ${i + 1}`] = `Error generating script: ${error.message}`;
-//         }
-//     }
-
-//     return NextResponse.json({ scripts: scriptsByDay });
-// }
-
-
-
-
-
-
