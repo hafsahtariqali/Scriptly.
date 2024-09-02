@@ -47,7 +47,7 @@ function createTopicPrompt({
 
 async function getGroqCompletion(systemprompt) {
     const groq = new Groq({
-        apiKey: process.env.GROQ_API_KEY
+        apiKey: process.env.API_KEY
     });
 
     const completion = await groq.chat.completions.create({
