@@ -23,15 +23,20 @@ const Dashboard = () => {
   const [userData, setUserData] = useState({})
   const userEmail = user?.primaryEmailAddress?.emailAddress;
   const router = useRouter(); 
-
-
+  const [topics, setTopics] = useState([]);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.push('/sign-in');
+        router.push('/sign-in');
     }
-  }, [isLoaded, isSignedIn, router]);
+}, [isLoaded, isSignedIn, router]);
 
+useEffect(() => {
+    const storedTopics = localStorage.getItem('generatedTopics');
+    if (storedTopics) {
+        setTopics(JSON.parse(storedTopics));
+    }
+}, []);
 
 
   const getCurrentDate = () => {
@@ -187,36 +192,29 @@ const Dashboard = () => {
             )}
 
             {showMenu && (
-              <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-white rounded-lg p-4 flex flex-col justify-center items-center z-20">
-                <h3 className="font-bold mb-4">Select a Topic:</h3>
-                <ul className="space-y-4 w-full">
-                  <li
-                    onClick={() => selectTopic('Web Development')}
-                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
-                  >
-                    Web Development
-                  </li>
-                  <li
-                    onClick={() => selectTopic('Mobile Development')}
-                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
-                  >
-                    Mobile Development
-                  </li>
-                  <li
-                    onClick={() => selectTopic('AI and World in 2024')}
-                    className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
-                  >
-                    AI and World in 2024
-                  </li>
-                </ul>
-                <button
-                  onClick={toggleMenu}
-                  className="mt-4 bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
-                >
-                  Close
-                </button>
-              </div>
-            )}
+                            <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 text-white rounded-lg p-4 flex flex-col justify-center items-center z-20">
+                                <h3 className="font-bold mb-4">Select a Topic:</h3>
+                                <ul className="space-y-4 w-full">
+                                    {topics.map((topic) => (
+                                        <li
+                                            key={topic}
+                                            onClick={() => selectTopic(topic)}
+                                            className="cursor-pointer hover:bg-[#FF0000] p-2 rounded-md text-center text-white"
+                                        >
+                                            {topic}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <button
+                                    onClick={toggleMenu}
+                                    className="mt-4 bg-[#FF0000] px-4 py-2 rounded-md text-white cursor-pointer hover:bg-[#BF0000] font-bold"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        )}
+
+
 
             {selectedTopic && (
               <div className="absolute inset-0 bg-opacity-30 shadow-lg backdrop-blur-lg bg-black/30 rounded-lg  p-4 flex flex-col justify-start items-start z-20 " style={{ maxHeight: 'calc(100vh - 80px)' }}>

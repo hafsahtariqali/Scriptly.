@@ -4,7 +4,7 @@ import { Tranquiluxe } from 'uvcanvas';
 import FogBackground from '@/components/FogBackground';
 import VantaEffect from '@/components/VanitaEffect';
 import MultiInput from '@/components/MultiInput';
-import { saveChannelData, getChannelData } from '../models/setupModel'; // Import getChannelData here
+import { saveChannelData, getChannelData } from '../models/setupModel';
 import { SignedIn, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -12,7 +12,7 @@ const Setup = () => {
     const [step, setStep] = useState(1);
     const router = useRouter();
     const { user } = useUser();
-    const userEmail = user?.primaryEmailAddress?.emailAddress; 
+    const userEmail = user?.primaryEmailAddress?.emailAddress;
     const [formData, setFormData] = useState({
         channelName: '',
         description: '',
@@ -23,6 +23,9 @@ const Setup = () => {
         contentLanguage: '',
         specifyVideoLength: false
     });
+
+    // State for storing the generated topics
+    const [generatedTopics, setGeneratedTopics] = useState([]);
 
     // Fetch existing channel data when the component mounts
     useEffect(() => {
@@ -52,6 +55,34 @@ const Setup = () => {
         fetchData();
     }, [userEmail]);
 
+    // Function to generate topics using the generate-topics API
+    async function generateTopics(channelName, videoCategory, preferences) {
+        try {
+            const response = await fetch('/api/generatetopics', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    channelName,
+                    videoCategory,
+                    preferences,
+                    numberOfTopics: 5,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate topics');
+            }
+
+            const data = await response.json();
+            return data.topics;
+        } catch (error) {
+            console.error('Error generating topics:', error);
+            return [];
+        }
+    }
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
@@ -73,26 +104,27 @@ const Setup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        console.log('Form data before submission:', formData); // Add this line
-
+        
         try {
             const response = await saveChannelData(userEmail, formData);
-
+        
             if (response) {
                 alert('Channel data saved successfully!');
-                setFormData({
-                    channelName: '',
-                    description: '',
-                    category: '',
-                    scriptsPerWeek: 1,
-                    daysNeeded: [],
-                    scriptFormat: [],
-                    videoLength: '',
-                    contentLanguage: '',
-                    specifyVideoLength: false,
-                });
-                router.replace('/dashboard');
+    
+                // Generate topics
+                const topics = await generateTopics(formData.channelName, formData.category, formData.description);
+    
+                if (topics.length > 0) {
+                    console.log('Generated topics:', topics);
+    
+                    // Store topics temporarily
+                    localStorage.setItem('generatedTopics', JSON.stringify(topics));
+        
+                    // Navigate to the dashboard
+                    router.replace('/dashboard');
+                } else {
+                    alert('Failed to generate topics.');
+                }
             } else {
                 alert('Failed to save channel data. Please try again.');
             }
@@ -101,6 +133,8 @@ const Setup = () => {
             alert('An error occurred while saving the channel data. Please try again later.');
         }
     };
+    
+    
 
     return (
         <SignedIn>
