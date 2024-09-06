@@ -20,7 +20,7 @@ const Setup = () => {
         scriptsPerWeek: 1,
         scriptFormat: [],
         videoLength: '',
-        contentLanguage: '',
+        contentLanguage: 'English',
         specifyVideoLength: false
     });
 
