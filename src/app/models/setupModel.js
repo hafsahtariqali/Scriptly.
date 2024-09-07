@@ -23,7 +23,7 @@ export const saveChannelData = async (userEmail, channelData) => {
       headings: channelData.scriptFormat,
       videoLength: channelData.videoLength || 0, 
       plan: 'Free',
-      language: channelData.contentLanguage,
+      language: channelData.language,
       scriptsGeneratedThisWeek: 0, 
       userCreated: formattedDate
     }); 

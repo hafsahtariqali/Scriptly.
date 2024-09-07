@@ -1,14 +1,41 @@
 import { saveAs } from 'file-saver';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, Alignment } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, Alignment, Numbering, NumberFormat, LevelFormat } from 'docx';
 import { marked } from 'marked';
 
+// Main function to generate and download DOCX
 export const generateAndDownloadDocx = async (filename, markdownContent) => {
   try {
     // Convert Markdown to HTML
     const htmlContent = marked(markdownContent);
 
-    // Convert HTML to DOCX
+    // Create the document with the parsed HTML content
     const doc = new Document({
+      numbering: {
+        config: [
+          {
+            reference: 'bullet',
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.BULLET,
+                text: '•',
+                alignment: Alignment.LEFT,
+              },
+            ],
+          },
+          {
+            reference: 'numbering',
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.DECIMAL,
+                text: '%1.',
+                alignment: Alignment.LEFT,
+              },
+            ],
+          },
+        ],
+      },
       sections: [
         {
           properties: {},
@@ -17,17 +44,20 @@ export const generateAndDownloadDocx = async (filename, markdownContent) => {
       ],
     });
 
+    // Generate DOCX buffer
     const buffer = await Packer.toBuffer(doc);
 
     // Save the DOCX file
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
     saveAs(blob, filename);
   } catch (error) {
     console.error('Error generating DOCX:', error);
   }
 };
 
-// Helper function to parse HTML and convert to docx elements
+// Helper function to parse HTML and convert it to DOCX elements
 const parseHtmlToDocx = (html) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -38,10 +68,8 @@ const parseHtmlToDocx = (html) => {
       case 'P':
         return [
           new Paragraph({
-            children: [
-              new TextRun(element.textContent?.trim() || ''),
-            ],
-          })
+            children: [new TextRun(element.textContent?.trim() || '')],
+          }),
         ];
       case 'H1':
         return [
@@ -55,7 +83,7 @@ const parseHtmlToDocx = (html) => {
             ],
             heading: HeadingLevel.HEADING_1,
             alignment: Alignment.LEFT,
-          })
+          }),
         ];
       case 'H2':
         return [
@@ -69,7 +97,7 @@ const parseHtmlToDocx = (html) => {
             ],
             heading: HeadingLevel.HEADING_2,
             alignment: Alignment.LEFT,
-          })
+          }),
         ];
       case 'H3':
         return [
@@ -83,7 +111,7 @@ const parseHtmlToDocx = (html) => {
             ],
             heading: HeadingLevel.HEADING_3,
             alignment: Alignment.LEFT,
-          })
+          }),
         ];
       case 'UL':
         return parseList(element, 'UL');
@@ -95,14 +123,12 @@ const parseHtmlToDocx = (html) => {
   });
 };
 
-// Helper function to parse lists
+// Helper function to parse lists and convert to DOCX list elements
 const parseList = (element, type) => {
-  const listItems = Array.from(element.children).filter(child => child.nodeName === 'LI');
+  const listItems = Array.from(element.children).filter((child) => child.nodeName === 'LI');
   return listItems.map((item) => {
     return new Paragraph({
-      children: [
-        new TextRun(item.textContent?.trim() || ''),
-      ],
+      children: [new TextRun(item.textContent?.trim() || '')],
       numbering: {
         reference: type === 'UL' ? 'bullet' : 'numbering',
         level: 0,

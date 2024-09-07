@@ -41,7 +41,9 @@ function createTopicPrompt({
     **Video Category**: ${videoCategory}
     **Preferences**: ${preferences}
 
-    You will only generate a list of the topics. No other text along with it. You need to just return a list of the topics which the user can choose from. Make sure the topics are related to the user's channel.
+
+    You will only generate a list of the topics. No other text along with it. You need to just return a list of the topics which the user can choose from. Make sure the topics are related to the user's channel and do not mention the numbering for the topics.
+    Please provide the topics as a plain text list and do not include anything other than the topics, without any numbering, bullets, or symbols. Each topic should be separated by a newline, but do not include any formatting that implies a sequence or order. Only return the topics themselves, ensuring they are related to the user's channel content.
     `;
 }
 

@@ -169,8 +169,8 @@ export async function POST(req) {
        - Adjust the tone as per preferences (e.g., humorous, serious).
     
     6. **Targeted Script Length**:
-       - Each script should match the desired video length of "${videoLength}" minutes.
-       - Aim for approximately ${videoLength * 200} words per minute.
+       - Each script should match the desired video length of "${videoLength}" minutes so that the user in reality get to make a video "${videoLength}" minutes long enough.
+       - Aim for approximately ${videoLength * 300} words per minute.
     
     7. **Effective Calls to Action**:
        - Include strong, strategically placed calls to action.

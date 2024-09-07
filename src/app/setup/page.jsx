@@ -20,7 +20,7 @@ const Setup = () => {
         scriptsPerWeek: 1,
         scriptFormat: [],
         videoLength: '',
-        contentLanguage: 'English',
+        language: 'English',
         specifyVideoLength: false
     });
 
@@ -42,7 +42,7 @@ const Setup = () => {
                             scriptsPerWeek: fetchedData.weeklyScriptLimit,
                             scriptFormat: fetchedData.headings,
                             videoLength: fetchedData.videoLength,
-                            contentLanguage: fetchedData.contentLanguage,
+                            language: fetchedData.language,
                             specifyVideoLength: fetchedData.VideoLength,
                         });
                     }

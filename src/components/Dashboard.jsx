@@ -24,6 +24,8 @@ const Dashboard = () => {
   const userEmail = user?.primaryEmailAddress?.emailAddress;
   const router = useRouter(); 
   const [topics, setTopics] = useState([]);
+  const [topicsLoading, setTopicsLoading] = useState(false); // Loading state for topics
+
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -31,13 +33,54 @@ const Dashboard = () => {
     }
 }, [isLoaded, isSignedIn, router]);
 
-useEffect(() => {
-    const storedTopics = localStorage.getItem('generatedTopics');
-    if (storedTopics) {
-        setTopics(JSON.parse(storedTopics));
-    }
-}, []);
 
+useEffect(()=>{
+  fetchTopics()
+},[])
+
+useEffect(() => {
+  if (selectedTopic) {
+    generateScript();
+  }
+}, [selectedTopic]);
+
+
+const fetchTopics = async (e) => {
+  if (e) e.preventDefault();
+
+  setTopicsLoading(true);
+
+  const formData = await getChannelData(userEmail);
+
+  const {channelName, videoCategory, preferences} = formData
+
+
+  try {
+    const response = await fetch('/api/generatetopics', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channelName: channelName || '', 
+        videoCategory: videoCategory || '',
+        preferences: preferences || '',
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch topics');
+    }
+
+    const data = await response.json();
+    setTopics(data.topics);
+  } catch (error) {
+    console.error('Error fetching topics:', error);
+    showSnackbar('Error fetching topics. Please try again later.');
+  } finally {
+    setTopicsLoading(false);
+  }
+};
 
   const getCurrentDate = () => {
     const currentDate = new Date();
@@ -59,7 +102,6 @@ useEffect(() => {
   const selectTopic = (topic) => {
     setSelectedTopic(topic);
     setShowMenu(false);
-    generateScript();
   };
 
   const goBack = () => {
@@ -114,28 +156,29 @@ useEffect(() => {
     const formData = await getChannelData(userEmail);
     setUserData(formData)
     const { weeklyScriptLimit, scriptsGeneratedThisWeek, userCreated } = formData;
-
+    
     if (userCreated === getCurrentDate()) {
-        const resetData = { scriptsGeneratedThisWeek: 0 };
-        await updateChannelData(userEmail, resetData);
-        setUserData((prev) => ({
-          ...prev,
-          ...resetData,
-        }));
-      }
-
+      const resetData = { scriptsGeneratedThisWeek: 0 };
+      await updateChannelData(userEmail, resetData);
+      setUserData((prev) => ({
+        ...prev,
+        ...resetData,
+      }));
+    }
+    
     if (scriptsGeneratedThisWeek >= weeklyScriptLimit) {
-        alert("You have reached your scripts limit this week. Update your scripts limit in setup or change your plan.");
-        setLoading(false);
+      alert("You have reached your scripts limit this week. Update your scripts limit in setup or change your plan.");
+      setLoading(false);
         return;
       }
 
     console.log('User data', userData)
+    console.log(selectedTopic)
     const modifiedFormData = {
       ...formData,
       selectedTopic: selectedTopic,
     };
-
+    
     console.log(modifiedFormData);
     
     try {
