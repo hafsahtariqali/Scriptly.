@@ -2,7 +2,7 @@
 // import Groq from 'groq-sdk';
 
 // export async function POST(req) {
-//     const { channelName, channelDescription, category, headings, videoLength, weeklyScriptsLimit, selectedTopic } = await req.json();
+//     const { channelName, channelDescription, category, headings, videoLength, weeklyScriptLimit, selectedTopic } = await req.json();
 
 //     const systemPrompt = `
 // You are an advanced AI assistant skilled in crafting detailed, engaging, and audience-targeted YouTube video scripts. Your goal is to produce scripts that perfectly match the user's requirements, capturing the channel's style and the chosen topic.
@@ -13,7 +13,7 @@
 // - **Video Category**: ${category}
 // - **Channel Description/Preferences**: ${channelDescription}
 // - **Desired Video Length**: ${videoLength} minutes
-// - **Number of Scripts**: ${weeklyScriptsLimit}
+// - **Number of Scripts**: ${weeklyScriptLimit}
 // - **Selected Topic**: ${selectedTopic}
 
 // **Instructions:**
@@ -47,11 +47,11 @@
 //    - Include a compelling call to action for further viewer engagement.
 
 // 8. **Multiple Script Generation**:
-//    - If "${weeklyScriptsLimit}" is specified, generate that many unique versions.
+//    - If "${weeklyScriptLimit}" is specified, generate that many unique versions.
 //    - Each script should offer distinct content but adhere to overall guidelines.
 
 // **Output:**
-// - Provide "${weeklyScriptsLimit}" complete YouTube video script(s) tailored to the inputs.
+// - Provide "${weeklyScriptLimit}" complete YouTube video script(s) tailored to the inputs.
 // - Each script must be well-structured, engaging, and ready for use.
 // - Ensure scripts are free from errors and maintain a professional tone.
 // - Clearly indicate the end of each script with "---end of script---" for easy differentiation.
@@ -77,8 +77,8 @@
 
 //     const scripts = await collectScripts(completion);
 
-//     if (scripts.length !== weeklyScriptsLimit) {
-//         console.error(`Expected ${weeklyScriptsLimit} scripts, but got ${scripts.length}`);
+//     if (scripts.length !== weeklyScriptLimit) {
+//         console.error(`Expected ${weeklyScriptLimit} scripts, but got ${scripts.length}`);
 //     }
 
 //     const stream = new ReadableStream({
@@ -105,7 +105,7 @@ import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
 export async function POST(req) {
-    const { channelName, channelDescription, category, headings, videoLength, weeklyScriptsLimit, selectedTopic } = await req.json();
+    const { channelName, channelDescription, category, headings, videoLength, weeklyScriptLimit, selectedTopic } = await req.json();
 
     // Default Script
     const defaultHeadings = [
@@ -137,7 +137,7 @@ export async function POST(req) {
     - **Video Category**: ${category}
     - **Channel Description/Preferences**: ${channelDescription}
     - **Desired Video Length**: ${videoLength} minutes
-    - **Number of Scripts**: ${weeklyScriptsLimit}
+    - **Number of Scripts**: 1
     - **Selected Topic**: ${selectedTopic}
     
     **Instructions:**
@@ -181,11 +181,10 @@ export async function POST(req) {
        - Include a compelling call to action for further viewer engagement.
     
     9. **Multiple Script Generation**:
-       - If "${weeklyScriptsLimit}" is specified, generate that many unique versions.
        - Each script should offer distinct content but adhere to overall guidelines.
     
     **Output:**
-    - Provide "${weeklyScriptsLimit}" complete YouTube video script(s) tailored to the inputs.
+    - Provide one complete YouTube video script(s) tailored to the inputs.
     - Each script must be well-structured, engaging, and ready for use.
     - Ensure scripts are free from errors and maintain a professional tone.
     - Clearly indicate the end of each script with "---end of script---" for easy differentiation.
@@ -234,8 +233,8 @@ export async function POST(req) {
 
     const scripts = await collectScripts(completion);
 
-    if (scripts.length !== weeklyScriptsLimit) {
-        console.error(`Expected ${weeklyScriptsLimit} scripts, but got ${scripts.length}`);
+    if (scripts.length !== weeklyScriptLimit) {
+        console.error(`Expected ${weeklyScriptLimit} scripts, but got ${scripts.length}`);
     }
 
     const stream = new ReadableStream({
