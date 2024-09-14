@@ -48,39 +48,65 @@ useEffect(() => {
 const fetchTopics = async (e) => {
   if (e) e.preventDefault();
 
+  console.log('Fetching topics...');
+
   setTopicsLoading(true);
 
-  const formData = await getChannelData(userEmail);
-
-  const {channelName, videoCategory, preferences} = formData
-
-
   try {
-    const response = await fetch('/api/generatetopics', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        channelName: channelName || '', 
-        videoCategory: videoCategory || '',
-        preferences: preferences || '',
-      }),
-    });
+    const formData = await getChannelData(userEmail);
+    console.log('Form data:', formData);
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch topics');
+    if (!formData) {
+      console.error('Error fetching channel data:', 'No data returned');
+      showSnackbar('Error fetching channel data. Please try again later.');
+      setTopicsLoading(false);
+      return;
     }
 
-    const data = await response.json();
-    setTopics(data.topics);
+    const { channelName, category, headings } = formData;
+
+
+    console.log('Request payload:', {
+      channelName: channelName || '',
+      videoCategory: category || '',
+      preferences: headings || '',
+    });
+
+    try {
+      const response = await fetch('/api/generatetopics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          channelName: channelName,
+          videoCategory: category,
+          preferences: headings,
+        }),
+      });
+
+      console.log('Response:', response);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch topics');
+      }
+
+      const data = await response.json();
+      console.log('Topics:', data.topics);
+      setTopics(data.topics);
+    } catch (error) {
+      console.error('Error fetching topics:', error);
+      showSnackbar('Error fetching topics. Please try again later.');
+    } finally {
+      setTopicsLoading(false);
+    }
   } catch (error) {
-    console.error('Error fetching topics:', error);
-    showSnackbar('Error fetching topics. Please try again later.');
-  } finally {
+    console.error('Error fetching channel data:', error);
+    showSnackbar('Error fetching channel data. Please try again later.');
     setTopicsLoading(false);
   }
 };
+
 
   const getCurrentDate = () => {
     const currentDate = new Date();
@@ -97,6 +123,7 @@ const fetchTopics = async (e) => {
     setShowMenu(!showMenu);
     setSelectedTopic('');
     setScriptData(''); 
+    fetchTopics()
   };
 
   const selectTopic = (topic) => {

@@ -1,5 +1,5 @@
 import { db } from '../../../firebase';
-import { doc, setDoc, updateDoc, getDoc } from '@firebase/firestore';
+import { doc, setDoc, updateDoc, getDoc } from  'firebase/firestore';
 
 
 
@@ -56,17 +56,21 @@ export const updateChannelData = async (userEmail, updatedData) => {
 //to retrieve the channel data from database
 export const getChannelData = async (userEmail) => {
   try {
+    console.log('Getting channel data for user:', userEmail);
     const userRef = doc(db, 'users', userEmail);
+    console.log('User reference:', userRef);
     const userSnap = await getDoc(userRef);
+    console.log('User snapshot:', userSnap);
 
     if (userSnap.exists()) {
+      console.log('User data:', userSnap.data());
       return userSnap.data();
     } else {
       console.log('No such document!');
       return null;
     }
   } catch (error) {
-    console.error('Error fetching channel data: ', error);
+    console.error('Error fetching channel data:', error);
     throw error;
   }
 };
